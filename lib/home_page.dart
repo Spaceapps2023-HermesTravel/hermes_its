@@ -38,13 +38,12 @@ class Planets extends StatelessWidget {
   const Planets({super.key, required this.earthAngle});
 
   (double, double) calcPlanetPos(
-    Size widgetSize,
     double angle,
     double radius,
   ) =>
       (
-        radius * cos(angle) - widgetSize.width / 2,
-        radius * sin(angle) - widgetSize.height / 2,
+        radius * cos(angle),
+        radius * sin(angle),
       );
 
   @override
@@ -52,12 +51,17 @@ class Planets extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         const earthSize = 32.0;
+        const moonSize = 8.0;
         final size = constraints.biggest;
         final (centerX, centerY) = (size.width / 2, size.height / 2);
+        final earthRadius = min(size.width, size.height) / 4;
         final (earthX, earthY) = calcPlanetPos(
-          const Size.square(earthSize),
           earthAngle,
-          min(size.width, size.height) / 4,
+          earthRadius,
+        );
+        final (moonX, moonY) = calcPlanetPos(
+          earthAngle * 5,
+          earthRadius / 3,
         );
         return Stack(
           children: [
@@ -66,14 +70,23 @@ class Planets extends StatelessWidget {
               child: Icon(Icons.sunny, size: 86, color: Colors.yellow),
             ),
             Positioned(
-              left: centerX + earthX,
-              bottom: centerY + earthY,
+              left: centerX + (earthX - earthSize / 2),
+              bottom: centerY + (earthY - earthSize / 2),
               child: const Icon(
                 Icons.circle,
                 size: earthSize,
                 color: Colors.green,
               ),
-            )
+            ),
+            Positioned(
+              left: centerX + earthX + (moonX - moonSize / 2),
+              bottom: centerY + earthY + (moonY - moonSize / 2),
+              child: const Icon(
+                Icons.circle,
+                size: moonSize,
+                color: Colors.grey,
+              ),
+            ),
           ],
         );
       },
