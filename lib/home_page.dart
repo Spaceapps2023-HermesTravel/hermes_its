@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'planets.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -22,9 +24,7 @@ class _HomePageState extends State<HomePage> {
             (i) => i.toDouble(),
           ),
           builder: (context, snapshot) {
-            return Planets(
-              earthAngle: (snapshot.data ?? 0) / 80,
-            );
+            return Planets(day: (snapshot.data ?? 0));
           },
         ),
       ),
@@ -33,9 +33,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class Planets extends StatelessWidget {
-  final double earthAngle;
+  final double day;
 
-  const Planets({super.key, required this.earthAngle});
+  const Planets({super.key, required this.day});
 
   (double, double) calcPlanetPos(
     double angle,
@@ -50,43 +50,32 @@ class Planets extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        const earthSize = 32.0;
-        const moonSize = 8.0;
         final size = constraints.biggest;
         final (centerX, centerY) = (size.width / 2, size.height / 2);
-        final earthRadius = min(size.width, size.height) / 4;
-        final (earthX, earthY) = calcPlanetPos(
-          earthAngle,
-          earthRadius,
-        );
-        final (moonX, moonY) = calcPlanetPos(
-          earthAngle * 5,
-          earthRadius / 3,
-        );
+
+        final planets = Planet.values.indexed.map<Widget>((e) {
+          final (idx, planet) = e;
+          final maxRadius = min(size.width, size.height) / 2;
+          final radius = maxRadius / Planet.values.length * (idx + 1);
+          final angle = (day / 365 / planet.yearsToFullRotation) * 2 * pi;
+          final (x, y) = calcPlanetPos(angle, radius);
+          return Positioned(
+            left: centerX + (x - planet.size / 2),
+            bottom: centerY + (y - planet.size / 2),
+            child: Icon(
+              Icons.circle,
+              size: planet.size,
+              color: planet.color,
+            ),
+          );
+        });
         return Stack(
           children: [
             const Align(
               alignment: Alignment.center,
               child: Icon(Icons.sunny, size: 86, color: Colors.yellow),
             ),
-            Positioned(
-              left: centerX + (earthX - earthSize / 2),
-              bottom: centerY + (earthY - earthSize / 2),
-              child: const Icon(
-                Icons.circle,
-                size: earthSize,
-                color: Colors.green,
-              ),
-            ),
-            Positioned(
-              left: centerX + earthX + (moonX - moonSize / 2),
-              bottom: centerY + earthY + (moonY - moonSize / 2),
-              child: const Icon(
-                Icons.circle,
-                size: moonSize,
-                color: Colors.grey,
-              ),
-            ),
+            ...planets
           ],
         );
       },
