@@ -15,9 +15,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ResHermes')),
+      appBar: AppBar(title: const Text('Hermes-ITS')),
       body: Container(
-        color: Color(0xFF000418),
+        color: const Color(0xFF000418),
         child: StreamBuilder<double>(
           stream: Stream.periodic(
             const Duration(milliseconds: 10),
